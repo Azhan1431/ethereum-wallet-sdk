@@ -4,7 +4,7 @@ import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx'
 import Common from '@ethereumjs/common'
 
 const ethers = require('ethers');
-const BigNumber = require('BigNumber.js');
+const BigNumber = require('bignumber.js');
 
 
 export function numberToHex(value: any) {
@@ -45,17 +45,19 @@ export async function signOpMainnetTransaction (params: any): Promise<string> {
     const wallet = new ethers.Wallet(Buffer.from(privateKey, 'hex'));
     const txData: any = {
         nonce: ethers.utils.hexlify(nonce),
-        from,
+        //from,
         to,
         gasLimit: ethers.utils.hexlify(gasLimit),
         value: ethers.utils.hexlify(ethers.utils.parseUnits(amount, decimal)),
         chainId
     };
     if (maxFeePerGas && maxPriorityFeePerGas) {
+        // 添加这一行设置交易类型
+        txData.type = 2;  // EIP-1559交易类型
         txData.maxFeePerGas = numberToHex(maxFeePerGas);
         txData.maxPriorityFeePerGas =  numberToHex(maxPriorityFeePerGas);
     } else {
-        txData.gasPrice = ethers.utils.hexlify(gasPrice);
+        txData.gasPrice = numberToHex(gasPrice);
     }
     if (tokenAddress && tokenAddress !== '0x00') {
         let idata: any;
@@ -93,11 +95,13 @@ export function ethSign(params: any) {
         nonce: transactionNonce,
         gasLimit: gasLimits,
         to,
-        from,
+        //from,
         chainId: chainIdHex,
         value: numBalanceHex
     }
     if (maxFeePerGas && maxPriorityFeePerGas) {
+        // 添加交易类型标识
+        txData.type = 2; // 这是EIP-1559交易的类型标识
         txData.maxFeePerGas = numberToHex(maxFeePerGas);
         txData.maxPriorityFeePerGas = numberToHex(maxPriorityFeePerGas);
     } else {
